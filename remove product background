@@ -1,0 +1,3 @@
+.activeRadioProduct {
+	background:none !important;
+}
