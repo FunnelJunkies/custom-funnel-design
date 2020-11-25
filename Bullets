@@ -1,0 +1,10 @@
+li:before {
+  	content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #4D6BBD;
+    border-radius: 50px;
+    box-shadow: rgba(71, 117, 185, .25) 0 0 0 6px;
+    margin-top: 8px;
+}
