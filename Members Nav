@@ -1,0 +1,21 @@
+<script>
+  $(function() {
+	var lessonLinks = $("a.lesson-link[id!='temp-link']");
+	var idx = [];
+	lessonLinks.each(function(i) {
+		idx[i] = this.id;
+	});
+    $(document).on("click","a[href='#next-lesson']",function (ev) {
+	    ev.preventDefault();
+	    var currIndex = $.inArray($('a.activeMemberNav').attr("id"),idx);
+	    $('a.lesson-link[id="'+idx[currIndex+1]+'"]').click();
+	    window.scrollTo(0,0);
+	});
+    $(document).on("click","a[href='#previous-lesson']",function (ev) {
+	    ev.preventDefault();
+	    var currIndex = $.inArray($('a.activeMemberNav').attr("id"),idx);
+	    $('a.lesson-link[id="'+idx[currIndex-1]+'"]').click();
+	    window.scrollTo(0,0);
+	});
+  });
+</script>
