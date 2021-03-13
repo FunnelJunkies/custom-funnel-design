@@ -1,0 +1,66 @@
+<script>
+/**************************
+* Copyright 2017 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+* Hat tip to Marcin Chaszczewski
+**************************/
+$(function () {
+$('a.lesson-link, [href*="#lesson"]').on("click", function () {
+$('html, body').animate({
+scrollTop: $('[data-de-type="membercontent"]').offset().top
+});
+});
+});
+</script>
+<script>
+/**************************
+* Copyright 2018 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* This copyright notice must remain in place whenever using
+* this code - DO NOT REMOVE
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+**************************/
+$(function () {
+$('.lesson-link').on('click', function () {
+var section = $(this).attr('id').split('-').shift();
+$('[data-cf-section-template][data-target!=".section'+section+'"] .title').each(function () {
+$(this).removeClass('opened').addClass('openedHeader');
+});
+$('[data-cf-lesson-list]:not(.section'+section+')').each(function () {
+$(this).removeClass('in').addClass('out');
+});
+});
+});
+</script>
+<script>
+/**************************
+* Copyright 2018 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* This copyright notice must remain in place whenever using
+* this code - DO NOT REMOVE
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+**************************/
+$(function() {
+var lessonLinks = $("a.lesson-link[id!='temp-link']");
+var idx = [];
+lessonLinks.each(function(i) {
+idx[i] = this.id;
+});
+$(document).on("click","a[href='#next-lesson']",function (ev) {
+ev.preventDefault();
+var currIndex = $.inArray($('a.activeMemberNav').attr("id"),idx);
+$('a.lesson-link[id="'+idx[currIndex+1]+'"]').click();
+window.scrollTo(0,0);
+});
+$(document).on("click","a[href='#previous-lesson']",function (ev) {
+ev.preventDefault();
+var currIndex = $.inArray($('a.activeMemberNav').attr("id"),idx);
+$('a.lesson-link[id="'+idx[currIndex-1]+'"]').click();
+window.scrollTo(0,0);
+});
+});
+</script>
