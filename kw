@@ -1,0 +1,309 @@
+<script>
+$(function () {
+$('.orderFormBump .sectioncontent div:first-child').addClass('bump-headline');
+$('.orderFormBump .sectioncontent .text-center').html($('[data-title*="cf-bump-content"] .containerInner').html());
+});
+</script>
+
+<script>
+$(function tDate (){
+	var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+	var date = new Date();
+	$("#tmp_paragraph-69600 .elHeadline b:first, #headline-17874 .elHeadline b:first, #headline-17874-135 .elHeadline b:first, #tmp_paragraph-69600-133-100 .elHeadline b:first" ).html(months[date.getMonth()] + ' ' + date.getDate());
+});
+</script>
+<script>
+  	$(".elVideo").click(function() {
+      var videoElement = document.getElementsByClassName('elVideo')[0];
+      var videoiFrame = videoElement.querySelector('iframe');
+      var player = new Vimeo.Player(videoiFrame);
+      player.setMuted(false);
+      player.setCurrentTime(0);
+      player.play();
+      this.classList.add('removedSoundOn');
+	});
+</script>
+
+
+<script>
+$(function () {
+	var domesticCountries = ['united states','united states of america','us','usa'];
+
+	var hideProds = ['3998475','3998476','3998480']; //these products will not show in the product selector
+
+	var domesticGroups = [
+		['3998475','3998472']
+	];
+	var intlGroups = [
+		['3998476','3998472']
+	];
+
+	//default to domestic groups
+	var prodGroups = domesticGroups;
+
+	if ($('.o2step_wrapper').length > 0) {
+		$('.o2step_step2 .elOrderProductOptions').first().attr('data-de-type','orpo');
+	}
+
+	$('[name="shipping_country"], [name="country"]').on('change input', function () {
+		setProdGroups();
+	});
+
+
+  $('[data-de-type="orpo"] [name="purchase[product_id]"]').on('change', function () {
+    setProdGroups();
+  });
+
+	if (typeof rebuildOrderSummary !== 'undefined' && $.isFunction(rebuildOrderSummary)) {
+		$('[data-de-type="ors"]').attr('data-title','cf-order-summary');
+	}
+
+	$.each(hideProds, function (index, value) {
+		$('[data-de-type="orpo"] [value="'+value+'"][name="purchase[product_id]"]').parents('[data-cf-product-template="true"]').hide();
+	});
+
+	function addProducts() {
+		$('#cfAR [name="purchase[product_ids][]"]').attr('checked',false);
+		var cfptSelectedProd = $('[data-de-type="orpo"] [name="purchase[product_id]"]:checked').val();
+
+		$('#bump-offer, [id*="bump_offer_"]').each(function () {
+			var bumpId = $(this).val();
+
+			if ($(this).is(':checked')) {
+				$('#cfAR [name="purchase[product_ids][]"][value="'+bumpId+'"]').attr('checked', true);
+			} else {
+				$('#cfAR [name="purchase[product_ids][]"][value="'+bumpId+'"]').attr('checked', false);
+			}
+		});
+
+		$.each(prodGroups, function (idx, arr) {
+			if ($.inArray(cfptSelectedProd, arr) >= 0) {
+				$.each(arr, function (iidx, value) {
+					$('#cfAR [name="purchase[product_ids][]"][value="'+value+'"]').attr('checked',true);
+				});
+			}
+		});
+
+		if (typeof rebuildOrderSummary !== 'undefined' && $.isFunction(rebuildOrderSummary)) {
+			rebuildOrderSummary();
+		}
+	}
+
+	$('[data-de-type="orpo"] [name="purchase[product_id]"]').first().trigger("click").trigger("change");
+	setProdGroups();
+
+	function setProdGroups() {
+		var selCountry = $('[name="shipping_country"] :selected').val() || $('[name="country"] :selected').val();
+
+		if (!selCountry || selCountry.length == 0) {
+			selCountry = localStorage.getItem("garlic:"+document.location.host+"*>select.shipping_country") || localStorage.getItem("garlic:"+document.location.host+"*>select.country");
+		}
+
+		if (selCountry && $.inArray(selCountry.toLowerCase(), domesticCountries) === -1) {
+			//set the prodGroups to international shipping
+			prodGroups = intlGroups;
+		} else {
+			prodGroups = domesticGroups;
+		}
+		addProducts();
+	}
+
+	$('[data-de-type="orpo"]').show();
+});
+</script>
+
+
+<script>
+$(function () {
+window.cfptOrderTotal = null;
+$('[data-de-type="ors"], .elOrderProductOptions:not(:has(input,select))').first().attr('data-title','cf-order-summary');
+$('#bump-offer').off();
+rebuildOrderSummary();
+$(document).on("change", '.qty_select, .o2step_step2 [name="purchase[product_id]"], [data-de-type="orpo"] [name="purchase[product_id]"], #bump-offer', function (ev) {
+$('#bump-offer, [id*="bump_offer_"]').each(function () {
+var bumpId = $(this).val();
+if ($(this).is(':checked')) {
+$('#cfAR [name="purchase[product_ids][]"][value="'+bumpId+'"]').attr('checked', true);
+} else {
+$('#cfAR [name="purchase[product_ids][]"][value="'+bumpId+'"]').attr('checked', false);
+}
+});
+rebuildOrderSummary();
+});
+});
+function rebuildOrderSummary() {
+var cfpt = window.CFPT || {};
+var prodPrices = cfpt.prodPrices || {};
+var freePriceDisplay = cfpt.freePriceDisplay || null;
+var orderTotalLabel = cfpt.orderTotalLabel || null;
+var prodSelParent = '[data-de-type="orpo"]';
+var appendTo = '[data-title="cf-order-summary"] .elOrderProductOptions';
+var cartMode = ($('.qty_select').length) ? true : false;
+if ($('.o2step_wrapper').length > 0) {
+prodSelParent = '.o2step_step2';
+appendTo = '[data-title="cf-order-summary"]';
+}
+$('[data-title="cf-order-summary"]').hide();
+if ($('[data-title="cf-order-summary"] .qty-head').length == 0 && $('.qty_select').length > 0) {
+$('[data-title="cf-order-summary"] .elOrderProductOptinLabel .elOrderProductOptinItem').before('<div class="pull-left qty-head">Qty</div>');
+}
+var $summTemplate = $("<div/>").addClass("clearfix elOrderProductOptinProducts");
+$summTemplate.append($("<div/>").addClass("pull-left elOrderProductOptinProductName product-name").css("width","inherit"));
+$summTemplate.append($("<div/>").addClass("pull-right elOrderProductOptinPrice product-price"));
+var orderTotal = 0.00;
+var orderCurrency = "USD"; //default
+$('[data-title="cf-order-summary"] .elOrderProductOptinProducts').remove();
+var cartProds = {};
+$('#cfAR [name="purchase[product_ids][]"]:checked').each(function () {
+var prodId = $(this).val();
+if (cartProds.hasOwnProperty(prodId)) {
+cartProds[prodId].qty++;
+} else {
+cartProds[prodId] = {qty: 1};
+}
+});
+//$('#cfAR [name="purchase[product_ids][]"]:checked').each(function () {
+$.each(cartProds, function (index, value) {
+var qty = value.qty;
+var prodId = index;
+var $prodItem = $(prodSelParent+' [name="'+prodId+'_qty"]');
+if (!$prodItem.length) {
+$prodItem = $(prodSelParent+' [name="purchase[product_id]"][value="'+prodId+'"]');
+}
+var prodDesc = $prodItem.nextAll('label').html();
+var prodPriceStr = $prodItem.nextAll('.elOrderProductOptinPrice').html();
+if (prodPrices.hasOwnProperty(prodId)) {
+var prodPriceNum = prodPrices[prodId].toFixed(2);
+} else {
+var prodPriceNum = parseFloat(prodPriceStr.replace(/[^0-9\.]+/g, "")).toFixed(2);
+}
+var subTotal = qty * prodPriceNum;
+var currency = $prodItem.nextAll('.elOrderProductOptinPrice').attr("taxamo-currency");
+orderCurrency = currency;
+$currTemplate = $summTemplate.clone();
+$currTemplate.attr('data-product_id', prodId);
+$currTemplate.attr('data-quantity', qty);
+var prodName = prodDesc;
+if ($('.qty_select').length > 0) {
+prodName = '<span class="prodQty">'+qty+'</span>'+prodDesc;
+}
+$currTemplate.find('.product-name').html(prodName);
+if (freePriceDisplay && subTotal == 0) {
+$currTemplate.find('.product-price').attr("taxamo-currency",currency).html(freePriceDisplay);
+$currTemplate.attr('data-subtotal', freePriceDisplay);
+} else {
+var priceDisplay = subTotal.toLocaleString(undefined, {style: 'currency', currency: currency});
+$currTemplate.find('.product-price').attr("taxamo-currency",currency).html(priceDisplay);
+$currTemplate.attr('data-subtotal', priceDisplay);
+}
+$currTemplate.appendTo($(appendTo));
+orderTotal += subTotal;
+});
+if (orderTotal) {
+$ttlTemplate = $summTemplate.clone();
+$ttlTemplate.addClass('cf-order-total-row').css({'border-top': '1px solid #DDD', 'margin-top': '.5em'});
+$ttlTemplate.find('.product-name').html(orderTotalLabel);
+$ttlTemplate.find('.product-price').attr("taxamo-currency",orderCurrency).html(orderTotal.toLocaleString(undefined, {style: 'currency', currency: orderCurrency}));
+$ttlTemplate.appendTo($(appendTo));
+$('[data-title="cf-order-summary"]').show();
+window.cfptOrderTotal = orderTotal;
+} else {
+$('[data-title="cf-order-summary"]').hide();
+window.cfptOrderTotal = null;
+}
+}
+</script>
+
+
+<script>
+CFPT = {};
+CFPT.prodPrices = { //modify with your product IDs and prices
+'3998472': 0, // key = product_id; value = true product price float
+'3998475': 11.95,
+'3998476': 19.95,
+'3998480': 37.00
+};
+CFPT.freePriceDisplay = 'FREE'; //what to say for subtotal when price is $0.00
+CFPT.orderTotalLabel = 'Order Total:'; //what to say for Order Total at the bottom
+</script>
+
+
+<script>
+$(function () {
+window.cfptCurrency = 'USD'; //set to whatever currency you process in
+// set total on button click for OTO pages
+$('[data-title*="cf-oto-cents-"]').on('click', function () {
+var titleParts = $(this).attr('data-title').split(' ');
+var total = null;
+$.each(titleParts, function (index, value) {
+if (value.indexOf('cf-oto-cents-') > -1) {
+total = value.split('-').pop();
+total = parseInt(total) / 100;
+return false; //break out of the loop
+}
+});
+if (!isNaN(total)) {
+window.cfptOrderTotal = total;
+setLastTransLocalStorage();
+}
+});
+function setLastTransLocalStorage() {
+localStorage.setItem('cfptLastTransAmt', window.cfptOrderTotal);
+localStorage.setItem('cfptLastTransPath', document.location.pathname);
+}
+// set localStorage vals on cfAR form submit
+$('[href="#submit-form"], [href="#submit-form-2step-order"], [href*="#yes-link"]').on('click', function () {
+if (window.cfptOrderTotal) {
+setLastTransLocalStorage();
+}
+});
+$('#cfAR').on('submit', function () {
+if (window.cfptOrderTotal) {
+setLastTransLocalStorage();
+}
+});
+// handle grabbing totals from last trans and fire events
+var cfptLastTransAmt = localStorage.getItem('cfptLastTransAmt');
+var cfptLastTransPath = localStorage.getItem('cfptLastTransPath');
+var cfptCurrPagePath = document.location.pathname;
+// if the last path and the current path match
+// this is a page reload, which would be a failure
+// so remove the items to start fresh
+if (cfptLastTransPath && cfptLastTransPath == cfptCurrPagePath) {
+cfptLastTransAmt = null;
+cfptLastTransPath = null;
+clearLastTransLocalStorage();
+}
+// if we have an amount and we can convert that amount to a float
+// store that float into the last transAmt var
+if (cfptLastTransAmt) {
+cfptLastTransAmt = parseFloat(cfptLastTransAmt);
+if (!isNaN(cfptLastTransAmt)) {
+firePurchaseEvents(cfptLastTransAmt);
+}
+}
+function firePurchaseEvents(amt) {
+if (typeof fbq != 'undefined') {
+fireFBPurchaseEvent(amt);
+}
+clearLastTransLocalStorage();
+}
+function fireFBPurchaseEvent(amt) {
+fbq('track', 'Purchase', {value: amt, currency: window.cfptCurrency});
+}
+function clearLastTransLocalStorage() {
+localStorage.removeItem('cfptLastTransAmt');
+localStorage.removeItem('cfptLastTransPath');
+}
+});
+</script>
+
+
+<script>
+$(function () {
+$('[href="#submit-form-2step"]').on("click", function () {
+fbq('track','Lead');
+});
+});
+</script>
+
