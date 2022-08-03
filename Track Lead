@@ -1,0 +1,7 @@
+<script>
+$(function () {
+$('[href="#submit-form-2step"]').on("click", function () {
+fbq('track','Lead');
+});
+});
+</script>
