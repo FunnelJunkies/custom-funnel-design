@@ -1,0 +1,6 @@
+<script>
+$(function () {
+$('.orderFormBump .sectioncontent div:first-child').addClass('bump-headline');
+$('.orderFormBump .sectioncontent .text-center').html($('[data-title*="cf-bump-content"] .containerInner').html());
+});
+</script>
