@@ -1,0 +1,22 @@
+@font-face {
+	font-family: 'Name';
+	src: url('Digital Asset URL');
+}
+@font-face {
+	font-family: 'Name';
+	src: url('Digital Asset URL');
+}
+h1 {
+	font-family: '';
+}
+h2 {
+	font-family: '';
+}
+body {
+  font-family: '';
+	font-weight: (size) !important; (if needed)
+}
+.hsSize1
+{
+	line-height: 1.8;
+}
