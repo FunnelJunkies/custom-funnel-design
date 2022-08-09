@@ -1,0 +1,4 @@
+.col-md-12, .innerContent col_left {
+    padding-left: 0px;
+    padding-right: 0px;
+}
