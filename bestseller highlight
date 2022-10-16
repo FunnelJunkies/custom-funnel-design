@@ -1,0 +1,63 @@
+<script>
+/**************************
+* Copyright 2019 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* This copyright notice must remain in place whenever using
+* this code - DO NOT REMOVE
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+* Add-on: CF Bestseller Highlight
+* Version: 1.2
+* Last Updated: 11/17/2019
+**************************/
+
+$(function() {
+	var productId = "3863595"; //TODO: your product ID goes here
+	var head = "Best Deal!"; //TODO: change this text to whatever you like
+	$('.elOrderProductOptinProductName input[value="'+productId+'"]').siblings('label').html('<span class="best-seller-head">'+head+'</span><br />'+$('.elOrderProductOptinProductName input[value="'+productId+'"]').siblings('label').html());
+	$('.elOrderProductOptinProductName input[value="'+productId+'"]').closest('.elOrderProductOptinProducts').addClass('best-seller');
+});
+</script>
+
+<style>
+span.best-seller-head {
+  font-weight: bold;
+  color: red;
+  text-transform: uppercase;
+}
+
+.qty_select {
+  vertical-align: top;
+  float: left;
+}
+
+.elOrderProductOptinProductName label {
+  display: inline-block;
+  max-width: 65%;
+}
+
+.activeRadioProduct {
+	background: inherit !important;
+}
+
+.best-seller {
+  font-weight: bold;
+  background-color: #FDF107 !important;
+  border: 1px solid #000000;
+  margin: 0 -28px .5em;
+  padding: 10px 25px;
+  font-size: 1.1em;
+  -webkit-box-shadow: 0px 10px 5px -5px rgba(0,0,0,0.5);
+  -moz-box-shadow: 0px 10px 5px -5px rgba(0,0,0,0.5);
+  box-shadow: 0px 10px 5px -5px rgba(0,0,0,0.5);
+}
+
+.elOrderProductOptinProductName label {
+    float: left !important;
+    padding-left: .5em;
+}
+
+.elOrderProductOptinProductName input {
+    float: left;
+}
+</style>
