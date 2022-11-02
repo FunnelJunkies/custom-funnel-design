@@ -1,0 +1,158 @@
+
+<script>
+/**************************
+* Copyright 2019 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* This copyright notice must remain in place whenever using
+* this code - DO NOT REMOVE
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+* Add-on: CF Order Summary
+* Version: 2.0
+* Last Updated: 10/28/2019
+**************************/
+var $summTemplate = null;
+
+$(function () {
+	//set default value to kill bug in L&E JS
+	window.cfpe = window.cfpe || {};
+	window.cfpe.orderTotal = window.cfpe.orderTotal || 0;
+
+	window.cfptOrderTotal = null;
+
+	setSummaryTemplate();
+
+	$('#bump-offer').off();
+
+	rebuildOrderSummary();
+	$(document).on("change", '.qty_select, .o2step_step2 [name="purchase[product_id]"], [data-de-type="orpo"] [name="purchase[product_id]"], #bump-offer', function (ev) {
+
+		$('#bump-offer, [id*="bump_offer_"]').each(function () {
+			var bumpId = $(this).val();
+
+			if ($(this).is(':checked')) {
+				$('#cfAR [name="purchase[product_ids][]"][value="'+bumpId+'"]').attr('checked', true);
+			} else {
+				$('#cfAR [name="purchase[product_ids][]"][value="'+bumpId+'"]').attr('checked', false);
+			}
+		});
+		rebuildOrderSummary();
+	});
+	$(document).on('cfpt:cart-updated', function () {
+		rebuildOrderSummary();
+	});
+});
+
+function setSummaryTemplate() {
+	$('[data-de-type="ors"], .elOrderProductOptions:not(:has(input,select))').first().attr('data-title','cf-order-summary');
+
+	$summTemplate = $('[data-title="cf-order-summary"] .elOrderProductOptinProducts').first().clone();
+}
+
+function rebuildOrderSummary() {
+	var cfpt = window.CFPT || {};
+	var prodPrices = cfpt.prodPrices || {};
+	var freePriceDisplay = cfpt.freePriceDisplay || null;
+	var orderTotalLabel = cfpt.orderTotalLabel || null;
+	var prodSelParent = '[data-de-type="orpo"]';
+	var appendTo = '[data-title="cf-order-summary"] .elOrderProductOptions';
+
+	var cartMode = ($('.qty_select').length) ? true : false;
+
+	if ($('.o2step_wrapper').length > 0) {
+		prodSelParent = '.o2step_step2';
+		appendTo = '[data-title="cf-order-summary"]';
+	}
+
+	if (!$summTemplate) {
+		setSummaryTemplate();
+	}
+
+    $('[data-title="cf-order-summary"]').hide();
+	if ($('[data-title="cf-order-summary"] .qty-head').length == 0 && $('.qty_select').length > 0) {
+        if ($('table.elOrderProductOptions').length > 0) {
+            //this is the new way
+            $('[data-title="cf-order-summary"] .elOrderProductOptinItem').prepend('<span class="pull-left qty-head">Qty</span>');
+			appendTo = '[data-title="cf-order-summary"] tbody';
+        } else {
+            $('[data-title="cf-order-summary"] .elOrderProductOptinLabel .elOrderProductOptinItem').before('<div class="pull-left qty-head">Qty</div>');
+        }
+	}
+
+	var orderTotal = 0.00;
+	var orderCurrency = "USD"; //default
+
+	$('[data-title="cf-order-summary"] .elOrderProductOptinProducts').remove();
+
+	window.cfptCartProds = {};
+	$('#cfAR [name="purchase[product_ids][]"]:checked').each(function () {
+		var prodId = $(this).val();
+
+		if (window.cfptCartProds.hasOwnProperty(prodId)) {
+			window.cfptCartProds[prodId].qty++;
+		} else {
+			window.cfptCartProds[prodId] = {qty: 1};
+		}
+	});
+
+	//$('#cfAR [name="purchase[product_ids][]"]:checked').each(function () {
+	$.each(window.cfptCartProds, function (index, value) {
+		var qty = value.qty;
+		var prodId = index;
+
+		var $prodItem = $(prodSelParent+' [name="'+prodId+'_qty"]');
+		if (!$prodItem.length) {
+			$prodItem = $(prodSelParent+' [name="purchase[product_id]"][value="'+prodId+'"]');
+		}
+
+        var prodParent = $prodItem.parents('[data-cf-product-template]').first();
+		var prodDesc = prodParent.find('[data-cf-product-name]').html();
+		var prodPriceStr = prodParent.find('[data-cf-product-price]').html();
+		if (prodPrices.hasOwnProperty(prodId)) {
+			var prodPriceNum = prodPrices[prodId].toFixed(2);
+		} else {
+			var prodPriceNum = parseFloat(prodPriceStr.replace(/[^0-9\.]+/g, "")).toFixed(2);
+		}
+		var subTotal = qty * prodPriceNum;
+		var currency = prodParent.find('[data-cf-product-price]').attr("taxamo-currency");
+		orderCurrency = currency;
+
+		$currTemplate = $summTemplate.clone();
+		$currTemplate.attr('data-product_id', prodId);
+		$currTemplate.attr('data-quantity', qty);
+
+		var prodName = prodDesc;
+		if ($('.qty_select').length > 0) {
+			prodName = '<span class="prodQty">'+qty+'</span>'+prodDesc;
+		}
+		$currTemplate.find('.product-name').html(prodName);
+		if (freePriceDisplay && subTotal == 0) {
+			$currTemplate.find('.product-price').attr("taxamo-currency",currency).html(freePriceDisplay);
+			$currTemplate.attr('data-subtotal', freePriceDisplay);
+		} else {
+			var priceDisplay = subTotal.toLocaleString(undefined, {style: 'currency', currency: currency});
+			$currTemplate.find('.product-price').attr("taxamo-currency",currency).html(priceDisplay);
+			$currTemplate.attr('data-subtotal', priceDisplay);
+		}
+
+		$currTemplate.appendTo($(appendTo));
+
+		orderTotal += subTotal;
+	});
+
+	if (orderTotal) {
+		$ttlTemplate = $summTemplate.clone();
+
+		$ttlTemplate.addClass('cf-order-total-row').css({'border-top': '1px solid #DDD', 'margin-top': '.5em'});
+		$ttlTemplate.find('.product-name').html(orderTotalLabel);
+		$ttlTemplate.find('.product-price').attr("taxamo-currency",orderCurrency).html(orderTotal.toLocaleString(undefined, {style: 'currency', currency: orderCurrency}));
+		$ttlTemplate.appendTo($(appendTo));
+
+		$('[data-title="cf-order-summary"]').show();
+		window.cfptOrderTotal = orderTotal;
+	} else {
+		$('[data-title="cf-order-summary"]').hide();
+		window.cfptOrderTotal = null;
+	}
+}
+</script>
