@@ -1,0 +1,31 @@
+<script>
+/**************************
+* Copyright 2018 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* This copyright notice must remain in place whenever using
+* this code - DO NOT REMOVE
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+* Add-On: CF 3 Step Order
+* Version: 1.0
+**************************/
+$(function () {
+$('[data-title*="step-1-button"]').on('click', function () {
+//$('[data-title="step-1-row"]').hide();
+$('[data-title="step-2-row"]').show();
+scrollToTop('[data-title="step-2-row"]');
+return false;
+});
+$('[data-title*="step-2-button"]').on('click', function () {
+//$('[data-title="step-1-row"]').hide();
+$('[data-title="step-3-row"]').show();
+scrollToTop('[data-title="step-3-row"]');
+return false;
+});
+function scrollToTop(cfptSelector) {
+$('html, body').animate({
+scrollTop: ($(cfptSelector).offset().top)
+}, 500);
+}
+});
+</script>
