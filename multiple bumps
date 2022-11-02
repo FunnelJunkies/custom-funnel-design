@@ -1,0 +1,65 @@
+
+<script>
+/**************************
+* Copyright 2019 CF Pro Tools, All Rights Reserved
+* Do not share, or distribute this code without author's consent.
+* This copyright notice must remain in place whenever using
+* this code - DO NOT REMOVE
+* Author: Jaime Smith
+* Website: https://cfprotools.com
+* Add-on: CF Multiple Bumps
+* Version: 2.1
+* Last Updated: 02/25/2020
+**************************/
+
+$(function () {
+	if ($('[data-de-type="order2step"], [data-de-type="order2stepi"]').length) {
+        $('.elCreditCardForm').after($('[data-title*="cf-multi-bump-"]').show());
+	}
+
+    $('[data-title*="cf-multi-bump-"]').each(function () {
+        var titleParts = $(this).attr('data-title').split(' ');
+        var bumpId = ''; //titleParts[titleParts.length - 1];
+
+        $.each(titleParts, function (index, value) {
+            if (value.indexOf('cf-multi-bump-') !== -1) {
+                var idParts = value.split('-');
+                bumpId = idParts[idParts.length - 1];
+            }
+        });
+
+		$('input[name="purchase[product_id]"][value="'+bumpId+'"]:not(#cfAR input)').parents('[data-cf-product-template]').addClass('cf-multiple-bump-product').hide();
+
+        $(this).find('[id="bump-offer"]').off();
+
+        $(this).find('[name="purchase[product_ids][]"]').val(bumpId).attr('id','bump_offer_'+bumpId);
+    });
+
+	$('.orderFormBump input[type="checkbox"][name="purchase[product_ids][]"]').on('change', function () {
+		var checked = $(this).is(':checked');
+		var id = $(this).val();
+
+		$('#cfAR input[name="purchase[product_ids][]"][value="'+id+'"]').attr("checked", checked);
+
+		rebuildOrderSummary();
+	});
+
+	$('[href="#submit-form-2step"]').on('click', function () {
+		rebuildOrderSummary();
+	});
+});
+</script>
+
+<script>
+// ** NOTE: THIS SECTION MUST BE INCLUDED, BUT DOES NOT ALWAYS
+// ** REQUIRE MODIFICATION
+// OPTIONAL CONFIGURATION //
+CFPT = {};
+CFPT.prodPrices = { //modify with your product IDs and prices
+	'3983208': 37,
+	'4018542': 47
+};
+CFPT.freePriceDisplay = 'FREE'; //what to say for subtotal when price is $0.00
+CFPT.orderTotalLabel = 'Order Total:'; //what to say for Order Total at the bottom
+// END OPTIONAL CONFIGURATION //
+</script>
