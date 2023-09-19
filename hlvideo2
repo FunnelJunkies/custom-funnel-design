@@ -1,0 +1,59 @@
+
+<script>
+if(typeof $ != 'function'){
+s = document.createElement('script');
+s.src = '//ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js';
+document.head.appendChild(s);
+}
+watchForDOM = setInterval(function(){
+if(document.readyState === 'complete'){
+clearInterval(watchForDOM);
+wait4$ = setInterval(function(){
+if(typeof $ == 'function'){
+clearInterval(wait4$);
+initClickToPlay();
+}
+});
+}
+});
+function initClickToPlay(){
+wait4Video = setInterval(function(){
+vidDiv = $('div[id*="video-"]').first();
+if(vidDiv.find('video.vjs-tech').length){
+clearInterval(wait4Video);
+vid = vidDiv.find('video.vjs-tech');
+vidContainer = vid.parent();
+video = vid[0];
+html = '<img ';
+html += 'class="video-overlay-ctp" ';
+html += 'src="';
+html += 'https://storage.googleapis.com/';
+html += 'msgsndr/e9SEQ0yUw2IN49Tyd3ED/';
+html += 'media/62976f8bfe8259bc544841e1.png';
+html += '" alt="Click To Turn On Sound">';
+html += '<img ';
+html += 'class="video-overlay-play" ';
+html += 'src="';
+html += 'https://storage.googleapis.com/';
+html += 'msgsndr/Fu41V2fpQJegybH4TdlM/';
+html += 'media/639ce068c19e63916b0c2c61.png';
+html += '" alt="Click To Turn On Sound">';
+overlay = $('<div class="video-overlay"></div>');
+overlay.html(html);
+overlay.on('click',function(){
+$(this).remove();
+video.pause();
+video.currentTime = 0;
+video.muted = false;
+video.volume = 1;
+video.play();
+});
+vidContainer.append(overlay);
+setTimeout(function(){
+$('.video-overlay-ctp').fadeIn('fast');
+$('.video-overlay-play').fadeIn('fast');
+},250);
+}
+});
+}
+</script>
